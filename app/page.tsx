@@ -39,6 +39,11 @@ export default function Home() {
   const [statusMessage, setStatusMessage] = useState(
     "Orbit speed is stable. Three-planet alignment is being monitored.",
   );
+  const [alignmentNotification, setAlignmentNotification] = useState<{
+    angle: number;
+    planets: Array<{ name: string; speed: number }>;
+    multiplier: number;
+  } | null>(null);
 
   const animatedPlanets = useMemo(
     () =>
@@ -115,34 +120,30 @@ export default function Home() {
 
       if (triplets.length > 0) {
         found = true;
-        const details = triplets[0].planets
-          .map((planet) => `${planet.name}=${planet.speed.toFixed(4)}x`)
-          .join(", ");
+        const details = triplets[0].planets.map((planet) => ({
+          name: planet.name,
+          speed: planet.speed,
+        }));
 
         setSpeedMultiplier(nextMultiplier);
+        setAlignmentNotification({
+          angle: triplets[0].angle,
+          planets: details,
+          multiplier: nextMultiplier,
+        });
         setStatusMessage(
-          `Alignment found at ${nextMultiplier}x speed! Aligned triplet at ${triplets[0].angle.toFixed(2)}°: ${details}`,
+          `Alignment found at ${nextMultiplier}x speed!`,
         );
-        window.alert(
-          `Alignment found at ${nextMultiplier}x speed!\n${details}\n\nRestoring to default speed...`,
-        );
-
-        // Restore to default after 3 seconds
-        setTimeout(() => {
-          setSpeedMultiplier(1);
-          setStatusMessage("Orbit speed restored to 1x (default). Three-planet alignment is being monitored.");
-        }, 3000);
         return;
       }
 
       nextMultiplier = Number((nextMultiplier + 0.5).toFixed(2));
 
-      // Safety limit to prevent infinite loop
-      if (nextMultiplier > 20) {
+      // Allow searching up to 200x for alignment
+      if (nextMultiplier > 200) {
         setStatusMessage(
-          "No alignment found within reasonable speed range. Try again.",
+          "No alignment found within range (0-200x). Try clicking again.",
         );
-        window.alert("No alignment found. Try again.");
         return;
       }
     }
@@ -192,6 +193,34 @@ export default function Home() {
 
   return (
     <main className={styles.page}>
+      {alignmentNotification && (
+        <div className={styles.notification}>
+          <div className={styles.notificationContent}>
+            <h2>🎯 Alignment Found!</h2>
+            <p>Angle: {alignmentNotification.angle.toFixed(2)}°</p>
+            <p>Speed Multiplier: {alignmentNotification.multiplier}x</p>
+            <div className={styles.planetDetails}>
+              {alignmentNotification.planets.map((planet) => (
+                <div key={planet.name} className={styles.planetRow}>
+                  <strong>{planet.name}</strong>: {planet.speed.toFixed(4)}x
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setAlignmentNotification(null);
+                setSpeedMultiplier(1);
+                setStatusMessage("Orbit speed restored to 1x (default).");
+              }}
+              className={styles.closeButton}
+            >
+              ✕ Close
+            </button>
+          </div>
+        </div>
+      )}
+
       <header className={styles.header}>
         <img
           src="https://private-user-images.githubusercontent.com/287196754/643088478-040f63a8-1f9e-4b4a-87c2-916cb8c816de.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODgwODc2ODUsIm5iZiI6MTc4ODA4NzM4NSwicGF0aCI6Ii8yODcxOTY3NTQvNjQzMDg4NDc4LTA0MGY2M2E4LTFmOWUtNGI0YS04N2MyLTkxNmNiOGM4MTZkZS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwODMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDgzMFQxMDU2MjVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT02M2Q5YTMzNzA1MTE4OTQyYzcyMjVkMjA0MjU5NDgzZmEwZGJlNjU0YWUzODYzYzBlYTBhNDYwYjEzMGM0NGU0JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZwbmcifQ.qIlqwepckTjugX-iW3OQfl9xl6RdWDbZQv48pRKWp48"

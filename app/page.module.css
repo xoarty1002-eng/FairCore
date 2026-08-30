@@ -11,6 +11,80 @@
   color: #f8fbff;
   font-family: var(--font-geist-sans);
   overflow: hidden;
+  position: relative;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  max-width: 90vw;
+  width: 100%;
+  max-width: 500px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.notificationContent {
+  background: linear-gradient(135deg, rgba(100, 145, 255, 0.95), rgba(20, 88, 192, 0.95));
+  border: 2px solid rgba(155, 183, 255, 0.6);
+  border-radius: 16px;
+  padding: 1.5rem;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.notificationContent h2 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.notificationContent p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+}
+
+.planetDetails {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.planetRow {
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+}
+
+.closeButton {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .header {

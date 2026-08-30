@@ -146,7 +146,7 @@ export default function Home() {
       {alignmentNotification && (
         <div className={styles.notification}>
           <div className={styles.notificationContent}>
-            <h2>🎯 Alignment Found!</h2>
+            <h2>Alignment Found!</h2>
             <p>Angle: {alignmentNotification.angle.toFixed(2)}°</p>
             <p>Speed Multiplier: {alignmentNotification.multiplier}x</p>
             <div className={styles.planetDetails}>

@@ -45,15 +45,16 @@ export default function Home() {
     planets: Array<{ name: string; speed: number }>;
     multiplier: number;
   } | null>(null);
+  const [isFrozen, setIsFrozen] = useState(false);
 
   const animatedPlanets = useMemo(
     () =>
       initialPlanets.map((planet) => ({
         ...planet,
-        adjustedSpeed: Number((planet.speed * speedMultiplier).toFixed(4)),
-        duration: `${Math.max(1.2, Number((planet.baseDuration / speedMultiplier).toFixed(2)))}s`,
+        adjustedSpeed: isFrozen ? Number((planet.speed * (alignmentNotification?.multiplier || 1)).toFixed(4)) : Number((planet.speed * speedMultiplier).toFixed(4)),
+        duration: `${Math.max(1.2, Number((planet.baseDuration / (isFrozen ? alignmentNotification?.multiplier || 1 : speedMultiplier)).toFixed(2)))}s`,
       })),
-    [speedMultiplier],
+    [speedMultiplier, isFrozen, alignmentNotification],
   );
 
   useEffect(() => {
@@ -111,6 +112,7 @@ export default function Home() {
 
     if (alignmentMultiplier !== null) {
       setSpeedMultiplier(alignmentMultiplier);
+      setIsFrozen(true);
 
       // Get the alignment details at this multiplier
       const trial = planetsForAlignment.map((planet) => ({
@@ -156,17 +158,31 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setAlignmentNotification(null);
-                setSpeedMultiplier(1);
-                setStatusMessage("Orbit speed restored to 1x (default).");
-              }}
-              className={styles.closeButton}
-            >
-              ✕ Close
-            </button>
+            <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFrozen(false);
+                  handleSpeedUpUntilAligned();
+                }}
+                className={styles.closeButton}
+                style={{ background: "rgba(100, 180, 255, 0.3)" }}
+              >
+                ⏩ Find Next
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAlignmentNotification(null);
+                  setIsFrozen(false);
+                  setSpeedMultiplier(1);
+                  setStatusMessage("Orbit speed restored to 1x (default).");
+                }}
+                className={styles.closeButton}
+              >
+                ✕ Close
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -193,6 +209,7 @@ export default function Home() {
             width: `${planet.orbit}px`,
             height: `${planet.orbit}px`,
             animationDuration: planet.duration,
+            animationPlayState: isFrozen ? "paused" : "running",
             ["--planet-size" as string]: `${planet.size}px`,
             ["--planet-color" as string]: planet.color,
           } as CSSProperties;

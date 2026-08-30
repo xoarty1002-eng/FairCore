@@ -92,7 +92,7 @@
   z-index: 2;
   text-align: center;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 0.75rem;
 }
@@ -122,7 +122,7 @@
 }
 
 .kicker {
-  font-size: 0.72rem;
+  font-size: 3.72rem;
   letter-spacing: 0.42rem;
   text-transform: uppercase;
   color: #9bb7ff;
@@ -290,10 +290,21 @@
 
 .legend {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  /* Creates exactly 2 equal columns side-by-side */
+  grid-template-columns: repeat(2, 1fr); 
   gap: 0.75rem;
-  width: min(900px, 92vw);
+  width: 360px;                /* Wider to fit 2 side-by-side columns */
   z-index: 2;
+
+  /* Positioning to the right side of the page */
+  position: fixed;             /* Keeps it in place while scrolling */
+  right: 1.5rem;               /* Distance from the right edge */
+  top: 50%;                    /* Centers it vertically */
+  transform: translateY(-50%); /* Adjusts alignment to perfectly center it */
+  
+  /* Fallback for long lists */
+  max-height: 85vh;
+  overflow-y: auto;            /* Adds a scrollbar if there are too many items */
 }
 
 .legendItem {
@@ -305,6 +316,7 @@
   background: rgba(13, 18, 38, 0.7);
   border: 1px solid rgba(145, 167, 255, 0.15);
   backdrop-filter: blur(4px);
+  box-sizing: border-box;      /* Prevents padding from breaking the grid layout */
 }
 
 .dot {

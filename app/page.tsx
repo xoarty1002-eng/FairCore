@@ -170,15 +170,15 @@ export default function Home() {
       )}
 
       <header className={styles.header}>
-        <div className={styles.timer}>Planet Time: {elapsedTime.toFixed(1)}s</div>
         <img
           src={logo.src}
           alt="FairAI Core Logo"
           className={styles.logo}
         />
-        <p className={styles.kicker}>FairAI Core</p>
+        <div className={styles.kicker}>FairAI Core  </div>
       </header>
-
+       <div className={styles.timer}>System Time: {elapsedTime.toFixed(1)}s</div>
+ 
       <div className={styles.system} aria-label="Animated solar system">
       <button
         type="button"

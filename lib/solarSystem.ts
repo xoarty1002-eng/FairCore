@@ -30,6 +30,36 @@ function circularDifference(a: number, b: number): number {
   return Math.min(raw, 360 - raw);
 }
 
+export function findAlignmentSpeedMultiplier(
+  planets: PlanetConfig[],
+  startMultiplier: number = 1,
+  maxMultiplier: number = 100,
+  tolerance: number = 1,
+): number | null {
+  // Try to find when 3+ planets align by checking combinations
+  // Use smaller steps for more accurate detection
+  const step = 0.1;
+  let multiplier = startMultiplier;
+
+  while (multiplier <= maxMultiplier) {
+    // Create a trial set with current multiplier
+    const trial = planets.map((planet) => ({
+      ...planet,
+      speed: Number((planet.speed * multiplier).toFixed(4)),
+    }));
+
+    // Check for alignments
+    const alignments = findAlignedTriplets(trial, tolerance, 0);
+    if (alignments.length > 0) {
+      return multiplier;
+    }
+
+    multiplier = Number((multiplier + step).toFixed(2));
+  }
+
+  return null;
+}
+
 export function findAlignedTriplets(
   planets: PlanetConfig[],
   toleranceDegrees = 1,

@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import {
   calculatePlanetSpeed,
   findAlignedTriplets,
+  findAlignmentSpeedMultiplier,
   logAlignedTriplets,
 } from "@/lib/solarSystem";
 import styles from "./page.module.css";
@@ -91,104 +92,53 @@ export default function Home() {
     );
   }, [animatedPlanets, speedMultiplier]);
 
-  const handleSpeedUp = () => {
-    const nextMultiplier = Number((speedMultiplier + 0.5).toFixed(2));
-    setSpeedMultiplier(nextMultiplier);
-  };
-
   const handleSpeedUpUntilAligned = () => {
-    let nextMultiplier = Number((speedMultiplier + 0.5).toFixed(2));
-    let found = false;
+    const planetsForAlignment = initialPlanets.map((planet) => ({
+      name: planet.name,
+      orbitRadius: planet.orbit,
+      size: planet.size,
+      color: planet.color,
+      speed: planet.speed,
+    }));
 
-    while (!found) {
-      const trial = initialPlanets.map((planet) => ({
+    // Use smarter search to find alignment point
+    const alignmentMultiplier = findAlignmentSpeedMultiplier(
+      planetsForAlignment,
+      speedMultiplier > 1 ? speedMultiplier : 1,
+      100,
+      1,
+    );
+
+    if (alignmentMultiplier !== null) {
+      setSpeedMultiplier(alignmentMultiplier);
+
+      // Get the alignment details at this multiplier
+      const trial = planetsForAlignment.map((planet) => ({
         ...planet,
-        speed: Number((planet.speed * nextMultiplier).toFixed(4)),
+        speed: Number((planet.speed * alignmentMultiplier).toFixed(4)),
       }));
 
-      const triplets = findAlignedTriplets(
-        trial.map((planet) => ({
-          name: planet.name,
-          orbitRadius: planet.orbit,
-          size: planet.size,
-          color: planet.color,
-          speed: planet.speed,
-        })),
-        1,
-        0,
-      );
+      const triplets = findAlignedTriplets(trial, 1, 0);
 
       if (triplets.length > 0) {
-        found = true;
         const details = triplets[0].planets.map((planet) => ({
           name: planet.name,
           speed: planet.speed,
         }));
 
-        setSpeedMultiplier(nextMultiplier);
         setAlignmentNotification({
           angle: triplets[0].angle,
           planets: details,
-          multiplier: nextMultiplier,
+          multiplier: alignmentMultiplier,
         });
-        setStatusMessage(
-          `Alignment found at ${nextMultiplier}x speed!`,
-        );
-        return;
-      }
-
-      nextMultiplier = Number((nextMultiplier + 0.5).toFixed(2));
-
-      // Allow searching up to 200x for alignment
-      if (nextMultiplier > 200) {
-        setStatusMessage(
-          "No alignment found within range (0-200x). Try clicking again.",
-        );
+        setStatusMessage(`Alignment found at ${alignmentMultiplier}x speed!`);
         return;
       }
     }
-  };
 
-  const handleSpeedUpUntilUnaligned = () => {
-    let nextMultiplier = Number((speedMultiplier + 0.5).toFixed(2));
-    let aligned = true;
-
-    while (aligned) {
-      const trial = initialPlanets.map((planet) => ({
-        ...planet,
-        speed: Number((planet.speed * nextMultiplier).toFixed(4)),
-      }));
-
-      const triplets = findAlignedTriplets(
-        trial.map((planet) => ({
-          name: planet.name,
-          orbitRadius: planet.orbit,
-          size: planet.size,
-          color: planet.color,
-          speed: planet.speed,
-        })),
-        1,
-        0,
-      );
-
-      if (triplets.length === 0) {
-        aligned = false;
-        const details = trial
-          .map((planet) => `${planet.name}=${planet.speed.toFixed(4)}x`)
-          .join(", ");
-
-        setSpeedMultiplier(nextMultiplier);
-        setStatusMessage(
-          `Three planets are no longer aligned. Current speeds: ${details}`,
-        );
-        window.alert(
-          `Three planets are no longer aligned. Current speeds: ${details}`,
-        );
-        return;
-      }
-
-      nextMultiplier = Number((nextMultiplier + 0.5).toFixed(2));
-    }
+    setStatusMessage(
+      "No alignment found within search range. Try clicking again.",
+    );
   };
 
   return (

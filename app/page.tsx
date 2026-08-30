@@ -228,28 +228,10 @@ export default function Home() {
           className={styles.logo}
         />
         <p className={styles.kicker}>FairAI Core</p>
-        <h1>Solar System</h1>
       </header>
 
-      <div className={styles.controls}>
-        <button type="button" className={styles.primaryButton} onClick={handleSpeedUpUntilAligned}>
-          Find Alignment
-        </button>
-      </div>
-
-      <div className={styles.status} role="status" aria-live="polite">
-        {statusMessage}
-      </div>
-
       <div className={styles.system} aria-label="Animated solar system">
-        <button
-          type="button"
-          onClick={handleSpeedUpUntilAligned}
-          className={styles.sunButton}
-          aria-label="Find alignment button"
-        >
-          ⏱️
-        </button>
+        <div className={styles.sun} aria-label="Sun" />
 
         {animatedPlanets.map((planet) => {
           const orbitStyle = {

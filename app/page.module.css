@@ -231,12 +231,13 @@
 }
 
 .orbit {
+  --orbit-shift: 0deg;
   position: absolute;
   left: 50%;
   top: 50%;
   border: 1px solid rgba(149, 168, 255, 0.2);
   border-radius: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(var(--orbit-shift));
   animation-name: spin;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
@@ -304,10 +305,10 @@
 
 @keyframes spin {
   from {
-    transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(var(--orbit-shift));
   }
   to {
-    transform: translate(-50%, -50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(calc(var(--orbit-shift) + 360deg));
   }
 }
 

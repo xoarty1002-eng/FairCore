@@ -6,7 +6,9 @@ import {
   calculatePlanetSpeed,
   findAlignedTriplets,
   findAlignmentSpeedMultiplier,
+  getPlanetAngle,
   logAlignedTriplets,
+  normalizeAngle,
 } from "@/lib/solarSystem";
 import styles from "./page.module.css";
 
@@ -49,11 +51,35 @@ export default function Home() {
 
   const animatedPlanets = useMemo(
     () =>
-      initialPlanets.map((planet) => ({
-        ...planet,
-        adjustedSpeed: isFrozen ? Number((planet.speed * (alignmentNotification?.multiplier || 1)).toFixed(4)) : Number((planet.speed * speedMultiplier).toFixed(4)),
-        duration: `${Math.max(1.2, Number((planet.baseDuration / (isFrozen ? alignmentNotification?.multiplier || 1 : speedMultiplier)).toFixed(2)))}s`,
-      })),
+      initialPlanets.map((planet) => {
+        const alignmentMatch =
+          isFrozen &&
+          alignmentNotification &&
+          alignmentNotification.planets.some((entry) => entry.name === planet.name);
+
+        const adjustedSpeed = isFrozen
+          ? Number((planet.speed * (alignmentNotification?.multiplier || 1)).toFixed(4))
+          : Number((planet.speed * speedMultiplier).toFixed(4));
+
+        const currentAngle = getPlanetAngle({
+          name: planet.name,
+          orbitRadius: planet.orbit,
+          size: planet.size,
+          color: planet.color,
+          speed: adjustedSpeed,
+        });
+
+        const orbitShift = alignmentMatch
+          ? normalizeAngle(alignmentNotification.angle - currentAngle)
+          : 0;
+
+        return {
+          ...planet,
+          adjustedSpeed,
+          orbitShift,
+          duration: `${Math.max(1.2, Number((planet.baseDuration / (isFrozen ? alignmentNotification?.multiplier || 1 : speedMultiplier)).toFixed(2)))}s`,
+        };
+      }),
     [speedMultiplier, isFrozen, alignmentNotification],
   );
 
@@ -199,6 +225,7 @@ export default function Home() {
             animationPlayState: isFrozen ? "paused" : "running",
             ["--planet-size" as string]: `${planet.size}px`,
             ["--planet-color" as string]: planet.color,
+            ["--orbit-shift" as string]: `${planet.orbitShift}deg`,
           } as CSSProperties;
 
           return (

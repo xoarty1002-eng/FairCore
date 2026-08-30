@@ -102,10 +102,10 @@ export default function Home() {
       speed: planet.speed,
     }));
 
-    // Use smarter search to find alignment point
+    // Always search from base speed (1x)
     const alignmentMultiplier = findAlignmentSpeedMultiplier(
       planetsForAlignment,
-      speedMultiplier > 1 ? speedMultiplier : 1,
+      1,
       100,
       1,
     );
@@ -158,31 +158,18 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFrozen(false);
-                  handleSpeedUpUntilAligned();
-                }}
-                className={styles.closeButton}
-                style={{ background: "rgba(100, 180, 255, 0.3)" }}
-              >
-                ⏩ Find Next
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAlignmentNotification(null);
-                  setIsFrozen(false);
-                  setSpeedMultiplier(1);
-                  setStatusMessage("Orbit speed restored to 1x (default).");
-                }}
-                className={styles.closeButton}
-              >
-                ✕ Close
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setAlignmentNotification(null);
+                setIsFrozen(false);
+                setSpeedMultiplier(1);
+                setStatusMessage("Orbit speed restored to 1x (default).");
+              }}
+              className={styles.closeButton}
+            >
+              ✕ Close
+            </button>
           </div>
         </div>
       )}

@@ -1,10 +1,18 @@
 # FairCore
 
-A minimal animated solar system built with Next.js, featuring orbiting planets and a starfield background.
+A Next.js solar system simulation with animated orbiting planets, orbital speed controls, and alignment detection for three planets sharing the same angle.
 
 ## Live demo
 
 https://xoarty1002-eng.github.io/FairCore/
+
+## Features
+
+- Animated solar system with orbit rings
+- Planet speed display and orbit range labels
+- Speed Up controls for faster motion
+- Alignment monitoring for three planets in the same angular position
+- Notification when the triplet alignment breaks and current speeds are displayed
 
 ## Run locally
 
@@ -13,29 +21,35 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Then open http://localhost:3000 in your browser.
 
-## Build for GitHub Pages
+## Test and build
 
-This project is configured for static export so it can be hosted on GitHub Pages.
+```bash
+npm test
+npm run build
+```
+
+The project includes a small logic test for the alignment detection and double-precision speed values.
+
+## GitHub Pages deployment
+
+This project is configured for static export and can be hosted on GitHub Pages.
 
 ```bash
 npm run build
 ```
 
-The generated static site is written to the `out/` directory and is ready to be published from the GitHub Pages branch or deployed through the included workflow.
-
-## GitHub Pages deployment
-
-The repository includes a Pages workflow that builds and deploys the app automatically on pushes to the main branch.
-
-1. In GitHub, open the repository settings.
-2. Go to Pages.
-3. Select GitHub Actions as the source.
-4. Push to main and the workflow will publish the site.
+The generated static site is placed in the `out/` directory and is designed for deployment via GitHub Actions.
 
 ## Project structure
 
-- `app/page.tsx` — solar system layout and planet data
-- `app/page.module.css` — animation and styling
-- `next.config.ts` — static export and GitHub Pages base path config
+- `app/page.tsx` — main solar system UI and interaction logic
+- `app/page.module.css` — layout, styling, and animation behavior
+- `lib/solarSystem.ts` — alignment detection, speed calculations, and triplet logger
+- `lib/solarSystem.test.ts` — verification for aligned-angle logic and speed values
+- `next.config.ts` — static export setup for Pages hosting
+
+## Notes
+
+GitHub Pages must be enabled in the repository settings before the deployed site becomes available. After enabling Pages with GitHub Actions as the source, pushes to `main` will publish the live site automatically.

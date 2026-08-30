@@ -34,6 +34,47 @@
   font-weight: 700;
 }
 
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  z-index: 2;
+}
+
+.controls button {
+  border: 1px solid rgba(160, 181, 255, 0.3);
+  background: rgba(22, 31, 54, 0.8);
+  color: #eef5ff;
+  border-radius: 999px;
+  padding: 0.8rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.controls button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(120, 162, 255, 0.25);
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, rgba(100, 145, 255, 0.9), rgba(20, 88, 192, 0.9)) !important;
+}
+
+.status {
+  max-width: 900px;
+  width: min(92vw, 900px);
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(149, 169, 255, 0.2);
+  background: rgba(10, 16, 32, 0.72);
+  color: #dfeaff;
+  text-align: center;
+  z-index: 2;
+}
+
 .system {
   position: relative;
   width: min(78vmin, 760px);
@@ -75,6 +116,34 @@
   z-index: 3;
 }
 
+.sunButton {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: none;
+  background: radial-gradient(circle at 35% 35%, #fffbe2 0%, #ffd76a 18%, #ffb703 42%, #ff8f00 68%, #ff5e00 100%);
+  box-shadow: 0 0 32px rgba(255, 191, 64, 0.9), 0 0 70px rgba(255, 150, 50, 0.7);
+  z-index: 3;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #000;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sunButton:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 0 48px rgba(255, 191, 64, 0.95), 0 0 90px rgba(255, 150, 50, 0.8);
+}
+
+.sunButton:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
 .orbit {
   position: absolute;
   left: 50%;
@@ -114,6 +183,37 @@
   transform: rotate(-28deg);
   opacity: 0.8;
   animation: cometTrail 14s ease-in-out infinite alternate;
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  width: min(900px, 92vw);
+  z-index: 2;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
+  background: rgba(13, 18, 38, 0.7);
+  border: 1px solid rgba(145, 167, 255, 0.15);
+  backdrop-filter: blur(4px);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.legendItem strong {
+  display: block;
+  margin-bottom: 0.15rem;
 }
 
 @keyframes spin {

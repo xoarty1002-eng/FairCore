@@ -91,6 +91,63 @@ export default function Home() {
     setSpeedMultiplier(nextMultiplier);
   };
 
+  const handleSpeedUpUntilAligned = () => {
+    let nextMultiplier = Number((speedMultiplier + 0.5).toFixed(2));
+    let found = false;
+
+    while (!found) {
+      const trial = initialPlanets.map((planet) => ({
+        ...planet,
+        speed: Number((planet.speed * nextMultiplier).toFixed(4)),
+      }));
+
+      const triplets = findAlignedTriplets(
+        trial.map((planet) => ({
+          name: planet.name,
+          orbitRadius: planet.orbit,
+          size: planet.size,
+          color: planet.color,
+          speed: planet.speed,
+        })),
+        1,
+        0,
+      );
+
+      if (triplets.length > 0) {
+        found = true;
+        const details = triplets[0].planets
+          .map((planet) => `${planet.name}=${planet.speed.toFixed(4)}x`)
+          .join(", ");
+
+        setSpeedMultiplier(nextMultiplier);
+        setStatusMessage(
+          `Alignment found at ${nextMultiplier}x speed! Aligned triplet at ${triplets[0].angle.toFixed(2)}°: ${details}`,
+        );
+        window.alert(
+          `Alignment found at ${nextMultiplier}x speed!\n${details}\n\nRestoring to default speed...`,
+        );
+
+        // Restore to default after 3 seconds
+        setTimeout(() => {
+          setSpeedMultiplier(1);
+          setStatusMessage("Orbit speed restored to 1x (default). Three-planet alignment is being monitored.");
+        }, 3000);
+        return;
+      }
+
+      nextMultiplier = Number((nextMultiplier + 0.5).toFixed(2));
+
+      // Safety limit to prevent infinite loop
+      if (nextMultiplier > 20) {
+        setStatusMessage(
+          "No alignment found within reasonable speed range. Try again.",
+        );
+        window.alert("No alignment found. Try again.");
+        return;
+      }
+    }
+  };
+
   const handleSpeedUpUntilUnaligned = () => {
     let nextMultiplier = Number((speedMultiplier + 0.5).toFixed(2));
     let aligned = true;
@@ -143,6 +200,9 @@ export default function Home() {
       <div className={styles.controls}>
         <button type="button" onClick={handleSpeedUp}>
           Speed Up +0.5x
+        </button>
+        <button type="button" className={styles.primaryButton} onClick={handleSpeedUpUntilAligned}>
+          Speed Up Until Aligned
         </button>
         <button type="button" className={styles.primaryButton} onClick={handleSpeedUpUntilUnaligned}>
           Speed Up Until Unaligned

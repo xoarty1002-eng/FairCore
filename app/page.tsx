@@ -181,7 +181,12 @@ export default function Home() {
       </header>
 
       <div className={styles.system} aria-label="Animated solar system">
-        <div className={styles.sun} aria-label="Sun" />
+        <button
+          type="button"
+          onClick={handleSpeedUpUntilAligned}
+          className={styles.sunButton}
+          aria-label="Sun - Click to find alignment"
+        />
 
         {animatedPlanets.map((planet) => {
           const orbitStyle = {

@@ -203,14 +203,8 @@ export default function Home() {
       </header>
 
       <div className={styles.controls}>
-        <button type="button" onClick={handleSpeedUp}>
-          Speed Up +0.5x
-        </button>
         <button type="button" className={styles.primaryButton} onClick={handleSpeedUpUntilAligned}>
-          Speed Up Until Aligned
-        </button>
-        <button type="button" className={styles.primaryButton} onClick={handleSpeedUpUntilUnaligned}>
-          Speed Up Until Unaligned
+          Find Alignment
         </button>
       </div>
 
@@ -221,11 +215,11 @@ export default function Home() {
       <div className={styles.system} aria-label="Animated solar system">
         <button
           type="button"
-          onClick={handleSpeedUp}
+          onClick={handleSpeedUpUntilAligned}
           className={styles.sunButton}
-          aria-label="Speed up button"
+          aria-label="Find alignment button"
         >
-          +0.5x
+          ⏱️
         </button>
 
         {animatedPlanets.map((planet) => {

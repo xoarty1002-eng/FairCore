@@ -10,10 +10,7 @@ import {
   normalizeAngle,
 } from "@/lib/solarSystem";
 import styles from "./page.module.css";
-
-const FAIRCORE_ICON_URL =
-  "https://private-user-images.githubusercontent.com/287196754/643088478-040f63a8-1f9e-4b4a-87c2-916cb8c816de.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODgwODc2ODUsIm5iZiI6MTc4ODA4NzM4NSwicGF0aCI6Ii8yODcxOTY3NTQvNjQzMDg4NDc4LTA0MGY2M2E4LTFmOWUtNGI0YS04N2MyLTkxNmNiOGM4MTZkZS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwODMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDgzMFQxMDU2MjVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT02M2Q5YTMzNzA1MTE4OTQyYzcyMjVkMjA0MjU5NDgzZmEwZGJlNjU0YWUzODYzYzBlYTBhNDYwYjEzMGM0NGU0JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZwbmcifQ.qIlqwepckTjugX-iW3OQfl9xl6RdWDbZQv48pRKWp48";
-
+import logo from './logo.png'
 const initialPlanets = [
   { name: "Mercury", orbit: 88, baseDuration: 6, size: 7, color: "#d9d4c5" },
   { name: "Venus", orbit: 130, baseDuration: 9, size: 12, color: "#f4c56d" },
@@ -166,7 +163,7 @@ export default function Home() {
       <header className={styles.header}>
         <div className={styles.timer}>Planet Time: {elapsedTime.toFixed(1)}s</div>
         <img
-          src={FAIRCORE_ICON_URL}
+          src={logo.src}
           alt="FairAI Core Logo"
           className={styles.logo}
         />

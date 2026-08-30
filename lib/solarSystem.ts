@@ -4,6 +4,7 @@ export type PlanetConfig = {
   size: number;
   color: string;
   speed: number;
+  startAngle?: number;
 };
 
 export type AlignmentMatch = {
@@ -22,7 +23,8 @@ export function normalizeAngle(angle: number): number {
 
 export function getPlanetAngle(planet: PlanetConfig): number {
   const orbitFactor = Number(planet.orbitRadius) * Number(planet.speed);
-  return normalizeAngle((orbitFactor * 360) % 360);
+  const startAngle = Number(planet.startAngle ?? 0);
+  return normalizeAngle(startAngle + (orbitFactor * 360) % 360);
 }
 
 function circularDifference(a: number, b: number): number {
@@ -36,19 +38,15 @@ export function findAlignmentSpeedMultiplier(
   maxMultiplier: number = 100,
   tolerance: number = 1,
 ): number | null {
-  // Try to find when 3+ planets align by checking combinations
-  // Use smaller steps for more accurate detection
   const step = 0.1;
   let multiplier = startMultiplier;
 
   while (multiplier <= maxMultiplier) {
-    // Create a trial set with current multiplier
     const trial = planets.map((planet) => ({
       ...planet,
       speed: Number((planet.speed * multiplier).toFixed(4)),
     }));
 
-    // Check for alignments
     const alignments = findAlignedTriplets(trial, tolerance, 0);
     if (alignments.length > 0) {
       return multiplier;

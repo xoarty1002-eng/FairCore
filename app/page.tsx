@@ -5,12 +5,14 @@ import type { CSSProperties } from "react";
 import {
   calculatePlanetSpeed,
   findAlignedTriplets,
-  findAlignmentSpeedMultiplier,
   getPlanetAngle,
   logAlignedTriplets,
   normalizeAngle,
 } from "@/lib/solarSystem";
 import styles from "./page.module.css";
+
+const FAIRCORE_ICON_URL =
+  "https://private-user-images.githubusercontent.com/287196754/643088478-040f63a8-1f9e-4b4a-87c2-916cb8c816de.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODgwODc2ODUsIm5iZiI6MTc4ODA4NzM4NSwicGF0aCI6Ii8yODcxOTY3NTQvNjQzMDg4NDc4LTA0MGY2M2E4LTFmOWUtNGI0YS04N2MyLTkxNmNiOGM4MTZkZS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwODMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDgzMFQxMDU2MjVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT02M2Q5YTMzNzA1MTE4OTQyYzcyMjVkMjA0MjU5NDgzZmEwZGJlNjU0YWUzODYzYzBlYTBhNDYwYjEzMGM0NGU0JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZwbmcifQ.qIlqwepckTjugX-iW3OQfl9xl6RdWDbZQv48pRKWp48";
 
 const initialPlanets = [
   { name: "Mercury", orbit: 88, baseDuration: 6, size: 7, color: "#d9d4c5" },
@@ -37,6 +39,16 @@ logAlignedTriplets(
   })),
 );
 
+function getAlignmentTrial(multiplier: number) {
+  return initialPlanets.map((planet) => ({
+    name: planet.name,
+    orbitRadius: planet.orbit,
+    size: planet.size,
+    color: planet.color,
+    speed: Number((planet.speed * multiplier).toFixed(4)),
+  }));
+}
+
 export default function Home() {
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
   const [statusMessage, setStatusMessage] = useState(
@@ -48,6 +60,8 @@ export default function Home() {
     multiplier: number;
   } | null>(null);
   const [isFrozen, setIsFrozen] = useState(false);
+  const [isBoosting, setIsBoosting] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const animatedPlanets = useMemo(
     () =>
@@ -84,89 +98,50 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const alignedTriplets = findAlignedTriplets(
-      animatedPlanets.map((planet) => ({
-        name: planet.name,
-        orbitRadius: planet.orbit,
-        size: planet.size,
-        color: planet.color,
-        speed: planet.adjustedSpeed,
-      })),
-      1,
-      0,
-    );
+    if (!isBoosting) return;
 
-    if (alignedTriplets.length > 0) {
-      const details = alignedTriplets[0].planets
-        .map(
-          (planet) =>
-            `${planet.name}=${planet.speed.toFixed(4)}x`,
-        )
-        .join(", ");
+    const intervalId = setInterval(() => {
+      setElapsedTime((previous) => Number((previous + 0.1).toFixed(2)));
 
+      setSpeedMultiplier((previous) => {
+        const next = Number((previous + 0.1).toFixed(4));
+        const triplets = findAlignedTriplets(getAlignmentTrial(next), 1, 0);
+        if (triplets.length > 0) {
+          const match = triplets[0];
+          setAlignmentNotification({
+            angle: match.angle,
+            planets: match.planets.map((planet) => ({
+              name: planet.name,
+              speed: planet.speed,
+            })),
+            multiplier: next,
+          });
+          setStatusMessage(`Alignment found at ${next.toFixed(2)}x speed!`);
+          setIsBoosting(false);
+          setIsFrozen(true);
+          return next;
+        }
+
+        return next;
+      });
+    }, 100);
+
+    return () => clearInterval(intervalId);
+  }, [isBoosting]);
+
+  const handleSunClick = () => {
+    if (isFrozen || alignmentNotification) {
+      setAlignmentNotification(null);
+      setIsFrozen(false);
+      setIsBoosting(true);
       setStatusMessage(
-        `Aligned triplet at ${alignedTriplets[0].angle.toFixed(2)}°: ${details}`,
+        `Resuming orbit from ${speedMultiplier.toFixed(2)}x. Planet timer continues from the last alignment frame.`,
       );
       return;
     }
 
-    const speeds = animatedPlanets
-      .map((planet) => `${planet.name}=${planet.adjustedSpeed.toFixed(4)}x`)
-      .join(", ");
-
-    setStatusMessage(
-      `No alignment at ${speedMultiplier.toFixed(2)}x. Current speeds: ${speeds}`,
-    );
-  }, [animatedPlanets, speedMultiplier]);
-
-  const handleSpeedUpUntilAligned = () => {
-    const planetsForAlignment = initialPlanets.map((planet) => ({
-      name: planet.name,
-      orbitRadius: planet.orbit,
-      size: planet.size,
-      color: planet.color,
-      speed: planet.speed,
-    }));
-
-    // Always search from base speed (1x)
-    const alignmentMultiplier = findAlignmentSpeedMultiplier(
-      planetsForAlignment,
-      1,
-      100,
-      1,
-    );
-
-    if (alignmentMultiplier !== null) {
-      setSpeedMultiplier(alignmentMultiplier);
-      setIsFrozen(true);
-
-      // Get the alignment details at this multiplier
-      const trial = planetsForAlignment.map((planet) => ({
-        ...planet,
-        speed: Number((planet.speed * alignmentMultiplier).toFixed(4)),
-      }));
-
-      const triplets = findAlignedTriplets(trial, 1, 0);
-
-      if (triplets.length > 0) {
-        const details = triplets[0].planets.map((planet) => ({
-          name: planet.name,
-          speed: planet.speed,
-        }));
-
-        setAlignmentNotification({
-          angle: triplets[0].angle,
-          planets: details,
-          multiplier: alignmentMultiplier,
-        });
-        setStatusMessage(`Alignment found at ${alignmentMultiplier}x speed!`);
-        return;
-      }
-    }
-
-    setStatusMessage(
-      "No alignment found within search range. Try clicking again.",
-    );
+    setIsBoosting(true);
+    setStatusMessage("Speed boosting until a three-planet alignment is reached.");
   };
 
   return (
@@ -184,25 +159,14 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setAlignmentNotification(null);
-                setIsFrozen(false);
-                setSpeedMultiplier(1);
-                setStatusMessage("Orbit speed restored to 1x (default).");
-              }}
-              className={styles.closeButton}
-            >
-              ✕ Close
-            </button>
           </div>
         </div>
       )}
 
       <header className={styles.header}>
+        <div className={styles.timer}>Planet Time: {elapsedTime.toFixed(1)}s</div>
         <img
-          src="https://private-user-images.githubusercontent.com/287196754/643088478-040f63a8-1f9e-4b4a-87c2-916cb8c816de.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODgwODc2ODUsIm5iZiI6MTc4ODA4NzM4NSwicGF0aCI6Ii8yODcxOTY3NTQvNjQzMDg4NDc4LTA0MGY2M2E4LTFmOWUtNGI0YS04N2MyLTkxNmNiOGM4MTZkZS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwODMwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDgzMFQxMDU2MjVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT02M2Q5YTMzNzA1MTE4OTQyYzcyMjVkMjA0MjU5NDgzZmEwZGJlNjU0YWUzODYzYzBlYTBhNDYwYjEzMGM0NGU0JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZwbmcifQ.qIlqwepckTjugX-iW3OQfl9xl6RdWDbZQv48pRKWp48"
+          src={FAIRCORE_ICON_URL}
           alt="FairAI Core Logo"
           className={styles.logo}
         />
@@ -212,9 +176,9 @@ export default function Home() {
       <div className={styles.system} aria-label="Animated solar system">
         <button
           type="button"
-          onClick={handleSpeedUpUntilAligned}
+          onClick={handleSunClick}
           className={styles.sunButton}
-          aria-label="Sun - Click to find alignment"
+          aria-label={isFrozen || alignmentNotification ? "Sun - resume orbiting" : "Sun - click to find alignment"}
         />
 
         {animatedPlanets.map((planet) => {

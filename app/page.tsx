@@ -95,21 +95,24 @@ export default function Home() {
   );
 
   useEffect(() => {
-    if (!isBoosting) return;
+    if (!isBoosting) {
+      setElapsedTime((previous) => Number((previous + 0.1).toFixed(2)));
+    }
 
     const intervalId = setInterval(() => {
-      setElapsedTime((previous) => Number((previous + 0.1).toFixed(2)));
 
-      setSpeedMultiplier((previous) => {
-        const next = Number((previous + 0.1).toFixed(4));
-        const triplets = findAlignedTriplets(getAlignmentTrial(next), 1, 0);
+      setSpeedMultiplier(() => {
+        var next = 3;
+       setElapsedTime((previous) => Number((previous + 0.1* next).toFixed(2)));
+       const triplets = findAlignedTriplets(getAlignmentTrial(next), 1, 0);
         if (triplets.length > 0) {
+          next = 1;
           const match = triplets[0];
           setAlignmentNotification({
             angle: match.angle,
             planets: match.planets.map((planet) => ({
               name: planet.name,
-              speed: planet.speed,
+              speed: planet.speed*next,
             })),
             multiplier: next,
           });
@@ -127,17 +130,23 @@ export default function Home() {
   }, [isBoosting]);
 
   const handleSunClick = () => {
+    if (!isBoosting)
+      {
+        setIsBoosting(true);
+      }
+      else
+      {
+         setIsBoosting(false);
+      }
     if (isFrozen || alignmentNotification) {
       setAlignmentNotification(null);
       setIsFrozen(false);
-      setIsBoosting(true);
+      setIsBoosting(false);
       setStatusMessage(
         `Resuming orbit from ${speedMultiplier.toFixed(2)}x. Planet timer continues from the last alignment frame.`,
       );
       return;
     }
-
-    setIsBoosting(true);
     setStatusMessage("Speed boosting until a three-planet alignment is reached.");
   };
 
@@ -171,13 +180,14 @@ export default function Home() {
       </header>
 
       <div className={styles.system} aria-label="Animated solar system">
-        <button
-          type="button"
-          onClick={handleSunClick}
-          className={styles.sunButton}
-          aria-label={isFrozen || alignmentNotification ? "Sun - resume orbiting" : "Sun - click to find alignment"}
-        />
-
+      <button
+        type="button"
+        onClick={handleSunClick}
+        className={styles.sunButton}
+        aria-label={isFrozen || alignmentNotification ? "Sun - resume orbiting" : "Sun - click to boost and find alignment"}
+      >
+        {isFrozen || alignmentNotification ? "Resume" : "Boost"}
+      </button>
         {animatedPlanets.map((planet) => {
           const orbitStyle = {
             width: `${planet.orbit}px`,

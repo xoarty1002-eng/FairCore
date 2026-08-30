@@ -13,7 +13,7 @@ export type AlignmentMatch = {
 };
 
 export function calculatePlanetSpeed(orbitRadius: number): number {
-  return Number((Math.max(orbitRadius / 18, 2.4) / 1000).toFixed(4));
+  return Number(((orbitRadius / 18) / 1000).toFixed(4));
 }
 
 export function normalizeAngle(angle: number): number {
@@ -24,7 +24,7 @@ export function normalizeAngle(angle: number): number {
 export function getPlanetAngle(planet: PlanetConfig): number {
   const orbitFactor = Number(planet.orbitRadius) * Number(planet.speed);
   const startAngle = Number(planet.startAngle ?? 0);
-  return normalizeAngle(startAngle + (orbitFactor * 360) % 360);
+  return normalizeAngle(startAngle + (orbitFactor * 360) % 360)/10;
 }
 
 function circularDifference(a: number, b: number): number {

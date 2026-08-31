@@ -36,6 +36,7 @@ export default function Home() {
   ].map((planet) => ({
     ...planet,
     speed: planet.speed * boosting,
+    angle: getPlanetAngle(planet, elapsedTime),
     range: `${Math.round(planet.orbit * 0.8)}–${Math.round(planet.orbit * 1.2)} px`,
   })), [boosting]);
 
@@ -61,11 +62,11 @@ export default function Home() {
 
       const currentTrialPlanets: PlanetConfig[] = initialPlanets.map((p) => ({
         name: p.name,
-        orbitRadius: p.orbit,
+        orbit: p.orbit,
         size: p.size,
         color: p.color,
         speed: p.speed,
-        startAngle: 0,
+        angle: 0,
       }));
 
       const triplets = findAlignedTriplets(currentTrialPlanets, nextTime, 1.5);

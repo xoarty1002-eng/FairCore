@@ -1,10 +1,10 @@
 export type PlanetConfig = {
   name: string;
-  orbitRadius: number;
+  orbit: number;
   size: number;
   color: string;
   speed: number;
-  startAngle?: number;
+  angle?: number;
 };
 
 export type AlignmentMatch = {
@@ -12,12 +12,6 @@ export type AlignmentMatch = {
   planets: Array<PlanetConfig & { angle: number; speed: number }>;
 };
 
-/**
- * Calculates a baseline relational speed based on orbit distance metrics.
- */
-export function calculatePlanetSpeed(orbitRadius: number): number {
-  return Number(((orbitRadius / 18) / 1000).toFixed(4));
-}
 
 /**
  * Normalizes any angle to stay strictly within a valid 0 to 360 degree boundary map.
@@ -36,7 +30,7 @@ export function getPlanetAngle(planet: PlanetConfig, elapsedTime: number): numbe
   // Custom velocity multiplier mapping to scale visual simulation playback speeds smoothly
   const scaleFactor = 0.05; 
   
-  const startAngle = Number(planet.startAngle ?? 0);
+  const startAngle = Number(planet.angle ?? 0);
   const dynamicMovement = baseSpeed * elapsedTime * scaleFactor * 360;
   
   return normalizeAngle(startAngle + dynamicMovement);

@@ -44,9 +44,6 @@ function circularDifference(a: number, b: number): number {
   return Math.min(raw, 360 - raw);
 }
 
-/**
- * Searches for all unique three-body combinations satisfying maximum proximity limits.
- */
 export function findAlignedTriplets(
   planets: PlanetConfig[],
   elapsedTime: number,
@@ -66,23 +63,28 @@ export function findAlignedTriplets(
         const angle2 = getPlanetAngle(p2, elapsedTime);
         const angle3 = getPlanetAngle(p3, elapsedTime);
 
-        // Check if the lines match by checking if diff is 0 OR 180 degrees
+        // Compute shortest circular distances for ALL three internal pairs
         const diff12 = circularDifference(angle1, angle2);
         const diff23 = circularDifference(angle2, angle3);
         const diff13 = circularDifference(angle1, angle3);
 
+        // A pair is linear ONLY if they are together (0°) OR directly opposite (180°)
         const aligned12 = diff12 <= normalizedTolerance || Math.abs(diff12 - 180) <= normalizedTolerance;
         const aligned23 = diff23 <= normalizedTolerance || Math.abs(diff23 - 180) <= normalizedTolerance;
         const aligned13 = diff13 <= normalizedTolerance || Math.abs(diff13 - 180) <= normalizedTolerance;
 
+        // CRITICAL FIX: All three pairs must satisfy the linear axis condition.
+        // If p2 is 0° and p3 is 90°, diff23 will be 90°, failing aligned23 and rejecting the false match!
         if (aligned12 && aligned23 && aligned13) {
-          // Use the first planet's angle as the baseline axis representation
+          // Normalize the base axis reporting angle to the 0-180 hemisphere
+          const baseAxisAngle = angle1 >= 180 ? angle1 - 180 : angle1;
+
           matches.push({
-            angle: angle1, 
+            angle: Number(baseAxisAngle.toFixed(2)), 
             planets: [
-              { ...p1, angle: angle1, speed: Number(p1.speed) },
-              { ...p2, angle: angle2, speed: Number(p2.speed) },
-              { ...p3, angle: angle3, speed: Number(p3.speed) },
+              { ...p1, angle: Number(angle1.toFixed(2)), speed: Number(p1.speed) },
+              { ...p2, angle: Number(angle2.toFixed(2)), speed: Number(p2.speed) },
+              { ...p3, angle: Number(angle3.toFixed(2)), speed: Number(p3.speed) },
             ],
           });
         }

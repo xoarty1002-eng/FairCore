@@ -50,7 +50,7 @@ function circularDifference(a: number, b: number): number {
 export function findAlignedTriplets(
   planets: PlanetConfig[],
   elapsedTime: number,
-  toleranceDegrees = 1,
+  toleranceDegrees = 10,
 ): AlignmentMatch[] {
   const matches: AlignmentMatch[] = [];
   const normalizedTolerance = Math.max(0, toleranceDegrees);

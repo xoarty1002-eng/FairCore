@@ -61,7 +61,7 @@ export function findAlignedTriplets(
   const matches: AlignmentMatch[] = [];
   const normalizedTolerance = Math.max(0, toleranceDegrees);
 
-  // Safeguard: Ignore the initial state when time has not advanced past 0
+  // Safeguard: Ignore the initial frozen state when time hasn't started moving yet
   if (elapsedTime === 0) {
     return [];
   }
@@ -73,7 +73,7 @@ export function findAlignedTriplets(
         const p2 = planets[j];
         const p3 = planets[k];
 
-        // Track live coordinates moving over time up to 360 degrees
+        // 1. Calculate each planet's actual unique angle for this timestamp
         const angle1 = getPlanetAngle(p1, elapsedTime);
         const angle2 = getPlanetAngle(p2, elapsedTime);
         const angle3 = getPlanetAngle(p3, elapsedTime);
@@ -84,10 +84,14 @@ export function findAlignedTriplets(
           circularDifference(angle1, angle3) <= normalizedTolerance;
 
         if (sameAngle) {
+          // Calculate the average angle purely for reference reporting or logs
           const avgAngle = (angle1 + angle2 + angle3) / 3;
+          
           matches.push({
             angle: avgAngle,
             planets: [
+              // CRITICAL FIX: Retain their individual dynamic orbital angles
+              // instead of collapsing/overwriting them into the same exact value.
               { ...p1, angle: angle1, speed: Number(p1.speed) },
               { ...p2, angle: angle2, speed: Number(p2.speed) },
               { ...p3, angle: angle3, speed: Number(p3.speed) },
@@ -101,9 +105,6 @@ export function findAlignedTriplets(
   return matches;
 }
 
-/**
- * Diagnostic stream logger to print tracking combinations to the web development console.
- */
 export function logAlignedTriplets(planets: PlanetConfig[], elapsedTime = 0): void {
   const matches = findAlignedTriplets(planets, elapsedTime, 1);
 

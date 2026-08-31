@@ -1,367 +1,234 @@
+/* app/page.module.css */
+
 .page {
+  background-color: #0b0f19;
+  color: #ffffff;
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+/* Two-column layout: Left Viewport, Right Control Panel */
+.dashboardContainer {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  background-color: #05070c;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Left System Map Section */
+.viewSection {
+  flex: 1;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  padding: 2rem;
-  background:
-    radial-gradient(circle at center, rgba(22, 32, 74, 0.6) 0%, rgba(4, 5, 15, 0.98) 45%, #02040b 100%);
-  color: #f8fbff;
-  font-family: var(--font-geist-sans);
-  overflow: hidden;
-  position: relative;
-}
-
-.notification {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  max-width: 90vw;
-  width: 100%;
-  max-width: 500px;
-  animation: slideDown 0.3s ease-out;
-}
-
-.notificationContent {
-  background: linear-gradient(135deg, rgba(100, 145, 255, 0.95), rgba(20, 88, 192, 0.95));
-  border: 2px solid rgba(155, 183, 255, 0.6);
-  border-radius: 16px;
-  padding: 1.5rem;
-  color: #fff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-}
-
-.notificationContent h2 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.notificationContent p {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
-}
-
-.planetDetails {
-  margin: 1rem 0;
-  padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-}
-
-.planetRow {
-  padding: 0.25rem 0;
-  font-size: 0.85rem;
-}
-
-.closeButton {
-  margin-top: 0.75rem;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: background 0.2s ease;
-}
-
-.closeButton:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  min-width: 0; /* Prevents flex children from stretching canvas boundaries */
 }
 
 .header {
-  position: relative;
-  z-index: 2;
-  text-align: center;
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 0.75rem;
-}
-
-.timer {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 0.9rem;
-  border-radius: 999px;
-  background: rgba(18, 26, 44, 0.8);
-  border: 1px solid rgba(149, 169, 255, 0.25);
-  color: #eaf2ff;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  box-shadow: 0 0 18px rgba(103, 155, 255, 0.18);
+  gap: 10px;
+  margin-bottom: 4px;
 }
 
 .logo {
-  height: 80px;
-  width: auto;
-  max-width: 200px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(155, 183, 255, 0.4));
 }
 
 .kicker {
-  font-size: 3.72rem;
-  letter-spacing: 0.42rem;
-  text-transform: uppercase;
-  color: #9bb7ff;
-  margin-bottom: 0.5rem;
-}
-
-.header h1 {
-  font-size: clamp(2.5rem, 5vw, 5rem);
-  line-height: 0.9;
-  letter-spacing: -0.08em;
+  font-size: 18px;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-  z-index: 2;
+.timer {
+  font-size: 20px;
+  font-weight: 700;
+  color: #6366f1;
+  margin-bottom: 16px;
+  font-family: monospace;
 }
 
-.controls button {
-  border: 1px solid rgba(160, 181, 255, 0.3);
-  background: rgba(22, 31, 54, 0.8);
-  color: #eef5ff;
-  border-radius: 999px;
-  padding: 0.8rem 1.2rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.controls button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 18px rgba(120, 162, 255, 0.25);
-}
-
-.primaryButton {
-  background: linear-gradient(135deg, rgba(100, 145, 255, 0.9), rgba(20, 88, 192, 0.9)) !important;
-}
-
-.status {
-  max-width: 900px;
-  width: min(92vw, 900px);
-  padding: 0.85rem 1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(149, 169, 255, 0.2);
-  background: rgba(10, 16, 32, 0.72);
-  color: #dfeaff;
-  text-align: center;
-  z-index: 2;
-}
-
+/* Fully Scalable Simulation Canvas */
 .system {
   position: relative;
-  width: min(78vmin, 760px);
-  height: min(78vmin, 760px);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 640px; /* Reduced scale to prevent vertical scrolling */
+  background-color: #030408;
+  border: 1px solid #111827;
+  border-radius: 12px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(14, 23, 52, 0.4), rgba(5, 7, 17, 0.2) 45%, transparent 70%);
-  box-shadow: inset 0 0 80px rgba(97, 140, 255, 0.14);
+  align-items: center;
 }
 
-.system::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background-image:
-    radial-gradient(2px 2px at 10% 20%, rgba(255, 255, 255, 0.9), transparent),
-    radial-gradient(2px 2px at 30% 70%, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1.5px 1.5px at 65% 35%, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(2px 2px at 80% 80%, rgba(255, 255, 255, 0.9), transparent),
-    radial-gradient(1.5px 1.5px at 90% 15%, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(2px 2px at 48% 58%, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(1.5px 1.5px at 15% 82%, rgba(255, 255, 255, 0.7), transparent);
-  opacity: 0.9;
-}
-
-.sun {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 72px;
-  height: 72px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #fffbe2 0%, #ffd76a 18%, #ffb703 42%, #ff8f00 68%, #ff5e00 100%);
-  box-shadow: 0 0 32px rgba(255, 191, 64, 0.9), 0 0 70px rgba(255, 150, 50, 0.7);
-  z-index: 3;
-}
-
+/* Sun Node Style */
 .sunButton {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 72px;
-  height: 72px;
-  transform: translate(-50%, -50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
+  background-color: #f59e0b;
   border: none;
-  background: radial-gradient(circle at 35% 35%, #fffbe2 0%, #ffd76a 18%, #ffb703 42%, #ff8f00 68%, #ff5e00 100%);
-  box-shadow: 0 0 32px rgba(255, 191, 64, 0.9), 0 0 70px rgba(255, 150, 50, 0.7);
-  z-index: 3;
-  cursor: pointer;
-  font-size: 0.85rem;
+  color: #000000;
   font-weight: 700;
-  color: #000;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: 10px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 0 15px #d97706;
 }
 
-.sunButton:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  box-shadow: 0 0 48px rgba(255, 191, 64, 0.95), 0 0 90px rgba(255, 150, 50, 0.8);
-}
-
-.sunButton:active {
-  transform: translate(-50%, -50%) scale(0.95);
-}
-
+/* Orbit Track Layers */
 .orbit {
-  --orbit-shift: 0deg;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  border: 1px solid rgba(149, 168, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 50%;
-  transform: translate(-50%, -50%) rotate(var(--orbit-shift));
-  animation-name: spin;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  will-change: transform;
 }
 
 .planet {
-  position: absolute;
-  right: calc(var(--planet-size) / -2);
-  top: 50%;
   width: var(--planet-size);
   height: var(--planet-size);
+  background-color: var(--planet-color);
   border-radius: 50%;
-  background: var(--planet-color);
+  box-shadow: 0 0 8px var(--planet-color);
   transform: translateY(-50%);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.24), inset -6px -6px 10px rgba(0, 0, 0, 0.2);
 }
 
-.orbit:nth-child(2) .planet {
-  box-shadow: 0 0 14px rgba(217, 212, 197, 0.7), inset -6px -6px 10px rgba(0, 0, 0, 0.2);
+/* Right Sidebar Panel Section */
+.sidebarSection {
+  width: 280px;
+  border-left: 1px solid #1e293b;
+  background-color: #090d16;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
 }
 
-.comet {
-  position: absolute;
-  width: 150px;
-  height: 2px;
-  top: 24%;
-  left: 12%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(120, 181, 255, 0.9) 32%, rgba(255, 255, 255, 0.95) 100%);
-  transform: rotate(-28deg);
-  opacity: 0.8;
-  animation: cometTrail 14s ease-in-out infinite alternate;
+.sidebarTitle {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  margin: 0 0 16px 0;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 8px;
 }
 
 .legend {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); 
-  gap: 0.75rem;
-  width: 360px;               
-  z-index: 2;
-  position: fixed;            
-  right: 1.5rem;               
-  top: 50%;                    
-  transform: translateY(-50%); 
-  max-height: 85vh;
-  overflow-y: auto;            
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 600px;
 }
 
 .legendItem {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 8px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0.9rem;
-  border-radius: 14px;
-  background: rgba(13, 18, 38, 0.7);
-  border: 1px solid rgba(145, 167, 255, 0.15);
-  backdrop-filter: blur(4px);
-  box-sizing: border-box;      /* Prevents padding from breaking the grid layout */
+  gap: 12px;
 }
 
 .dot {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  box-shadow: 0 0 12px currentColor;
+  flex-shrink: 0;
 }
 
-.legendItem strong {
+.itemData strong {
   display: block;
-  margin-bottom: 0.15rem;
+  font-size: 13px;
+  color: #f3f4f6;
+  margin-bottom: 2px;
 }
 
-@keyframes spin {
-  from {
-    transform: translate(-50%, -50%) rotate(var(--orbit-shift));
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(calc(var(--orbit-shift) + 360deg));
-  }
+.itemData div {
+  font-size: 11px;
+  color: #9ca3af;
+  font-family: monospace;
 }
 
-@keyframes cometTrail {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(-28deg) scaleX(0.8);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translate3d(28px, -16px, 0) rotate(-28deg) scaleX(1);
-    opacity: 0.8;
-  }
-  100% {
-    transform: translate3d(56px, -34px, 0) rotate(-28deg) scaleX(1.2);
-    opacity: 0.4;
-  }
+/* Notification Popup Style */
+.notification {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: 90%;
+  max-width: 400px;
 }
 
-@media (max-width: 640px) {
-  .page {
-    padding: 1.5rem 1rem 2.5rem;
-  }
+.notificationContent {
+  background-color: #7f1d1d;
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
 
-  .system {
-    width: min(92vw, 500px);
-    height: min(92vw, 500px);
-  }
+.notificationContent h2 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #fee2e2;
+}
 
-  .sun {
-    width: 58px;
-    height: 58px;
+.notificationContent p {
+  margin: 2px 0;
+  font-size: 12px;
+  color: #fca5a5;
+  font-family: monospace;
+}
+
+.planetDetails {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(239, 68, 68, 0.3);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.planetRow {
+  font-size: 11px !important;
+  color: #fecaca !important;
+}
+
+/* Responsive Adaptive View Collapse for Small Mobile Screens */
+@media (max-width: 768px) {
+  .dashboardContainer {
+    flex-direction: column;
+  }
+  .sidebarSection {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #1e293b;
+  }
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
   }
 }

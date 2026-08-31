@@ -1,5 +1,3 @@
-// lib/solarSystem.ts
-
 export type PlanetConfig = {
   name: string;
   orbitRadius: number;
@@ -33,7 +31,6 @@ export function normalizeAngle(angle: number): number {
  * Computes the exact real-time angular coordinate mapping for a planet.
  */
 export function getPlanetAngle(planet: PlanetConfig, elapsedTime: number): number {
-  const radius = Number(planet.orbitRadius || 0);
   const baseSpeed = Number(planet.speed || 0);
   
   // Custom velocity multiplier mapping to scale visual simulation playback speeds smoothly
@@ -44,6 +41,7 @@ export function getPlanetAngle(planet: PlanetConfig, elapsedTime: number): numbe
   
   return normalizeAngle(startAngle + dynamicMovement);
 }
+
 /**
  * Computes the shortest circular angular difference between two tracking coordinates.
  */
@@ -53,44 +51,20 @@ function circularDifference(a: number, b: number): number {
 }
 
 /**
- * Iterates through dynamic scaling factors sequentially to discover alignment matches.
- */
-export function findAlignmentSpeedMultiplier(
-  planets: PlanetConfig[],
-  startMultiplier: number = 1,
-  maxMultiplier: number = 100,
-  tolerance: number = 1,
-): number | null {
-  const step = 0.1;
-  let multiplier = startMultiplier;
-
-  while (multiplier <= maxMultiplier) {
-    const trial = planets.map((planet) => ({
-      ...planet,
-      speed: Number((planet.speed * multiplier).toFixed(4)),
-    }));
-
-    const alignments = findAlignedTriplets(trial, tolerance, 0);
-    if (alignments.length > 0) {
-      return multiplier;
-    }
-
-    multiplier = Number((multiplier + step).toFixed(2));
-  }
-
-  return null;
-}
-
-/**
  * Searches for all unique three-body combinations satisfying maximum proximity limits.
  */
 export function findAlignedTriplets(
   planets: PlanetConfig[],
+  elapsedTime: number,         
   toleranceDegrees = 1,
-  _minAngleStep = 5,
 ): AlignmentMatch[] {
   const matches: AlignmentMatch[] = [];
   const normalizedTolerance = Math.max(0, toleranceDegrees);
+
+  // Safeguard: Ignore the initial state when time has not advanced past 0
+  if (elapsedTime === 0) {
+    return [];
+  }
 
   for (let i = 0; i < planets.length; i++) {
     for (let j = i + 1; j < planets.length; j++) {
@@ -99,9 +73,10 @@ export function findAlignedTriplets(
         const p2 = planets[j];
         const p3 = planets[k];
 
-        const angle1 = getPlanetAngle(p1);
-        const angle2 = getPlanetAngle(p2);
-        const angle3 = getPlanetAngle(p3);
+        // Track live coordinates moving over time up to 360 degrees
+        const angle1 = getPlanetAngle(p1, elapsedTime);
+        const angle2 = getPlanetAngle(p2, elapsedTime);
+        const angle3 = getPlanetAngle(p3, elapsedTime);
 
         const sameAngle =
           circularDifference(angle1, angle2) <= normalizedTolerance &&
@@ -129,8 +104,8 @@ export function findAlignedTriplets(
 /**
  * Diagnostic stream logger to print tracking combinations to the web development console.
  */
-export function logAlignedTriplets(planets: PlanetConfig[]): void {
-  const matches = findAlignedTriplets(planets, 1, 0);
+export function logAlignedTriplets(planets: PlanetConfig[], elapsedTime = 0): void {
+  const matches = findAlignedTriplets(planets, elapsedTime, 1);
 
   matches.forEach((match) => {
     const parts = match.planets

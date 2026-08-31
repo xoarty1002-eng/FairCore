@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import {
   findAlignedTriplets,
@@ -16,93 +16,73 @@ export default function Home() {
     planets: Array<{ name: string; speed: number }>;
     multiplier: number;
   } | null>(null);
-  
-  const [isFrozen, setIsFrozen] = useState(false);
-  const [boosting, setBoosting] = useState(1);
+
+  const [boost, setBoost] = useState(1);
   const [elapsedTime, setElapsedTime] = useState(0);
 
-  const lastTimeRef = useRef<number | null>(null);
-  const accumulatedTimeRef = useRef<number>(0);
-
-  const initialPlanets : PlanetConfig[] = useMemo(() => [
-    { name: "Mercury", orbit: 45, speed: Math.random()*50, size: 4, color: "#d9d4c5" },
-    { name: "Venus", orbit: 70, speed: Math.random()*50, size: 7, color: "#f4c56d" },
-    { name: "Earth", orbit: 100, speed: Math.random()*50, size: 8, color: "#56a7ff" },
-    { name: "Mars", orbit: 135, speed: Math.random()*50, size: 6, color: "#ff7a59" },
-    { name: "Jupiter", orbit: 180, speed: Math.random()*50, size: 14, color: "#d08b5a" },
-    { name: "Saturn", orbit: 225, speed: Math.random()*50, size: 12, color: "#e8d39c" },
-    { name: "Uranus", orbit: 265, speed: Math.random()*50, size: 10, color: "#89d9f5" },
-    { name: "Neptune", orbit: 305, speed: Math.random()*50, size: 9, color: "#5d7dff" },
+  // 1. Correctly memoized base values generated exactly once
+  const initialPlanets: PlanetConfig[] = useMemo(() => [
+    { name: "Mercury", orbit: 45, size: 4, color: "#d9d4c5" },
+    { name: "Venus", orbit: 70, size: 7, color: "#f4c56d" },
+    { name: "Earth", orbit: 100, size: 8, color: "#56a7ff" },
+    { name: "Mars", orbit: 135, size: 6, color: "#ff7a59" },
+    { name: "Jupiter", orbit: 180, size: 14, color: "#d08b5a" },
+    { name: "Saturn", orbit: 225, size: 12, color: "#e8d39c" },
+    { name: "Uranus", orbit: 265, size: 10, color: "#89d9f5" },
+    { name: "Neptune", orbit: 305, size: 9, color: "#5d7dff" },
   ].map((planet) => ({
     ...planet,
-    speed: planet.speed * boosting,
-    angle: getPlanetAngle(planet, elapsedTime),
-    range: `${Math.round(planet.orbit * 0.8)}–${Math.round(planet.orbit * 1.2)} px`,
-  })), [boosting]);
+    speed: Math.random() * 10,
+    angle: Math.random() * 365,
+  })), []);
 
+  // 2. Pre-calculates positions cleanly for the UI layouts
+  const movingPlanets: PlanetConfig[] = useMemo(() => {
+    return initialPlanets.map((planet) => ({
+      ...planet,
+      speed: planet.speed * boost,
+      angle: getPlanetAngle(planet, elapsedTime),
+    }));
+  }, [initialPlanets, boost, elapsedTime]);
+
+  // 3. Engine loop combining clock steps and active alignment validation
   useEffect(() => {
-    if (isFrozen) {
-      lastTimeRef.current = null;
-      return;
-    }
+    if (boost === 0) return; // Completely freeze loop if system is paused
 
-    let animationFrameId: number;
+    const intervalId = setInterval(() => {
+      setElapsedTime((prevTime) => {
+        const nextTime = prevTime + 0.1 * boost;
+        const triplets = findAlignedTriplets(movingPlanets, nextTime, 1.5);
+        if (triplets && triplets.length > 0) {
+          const firstMatch = Array.isArray(triplets) ? triplets[0] : triplets;
 
-    const tick = (timestamp: number) => {
-      if (!lastTimeRef.current) {
-        lastTimeRef.current = timestamp;
-      }
+          setAlignmentNotification({
+            angle: firstMatch.angle,
+            planets: firstMatch.planets.map((p: any) => ({
+              name: p.name,
+              speed: p.speed,
+            })),
+            multiplier: boost,
+          });
 
-      const deltaSeconds = (timestamp - lastTimeRef.current) / 1000;
-      lastTimeRef.current = timestamp;
+          setBoost(0); // Freeze engine
+        }
 
-      accumulatedTimeRef.current += deltaSeconds * boosting;
-      const nextTime = Number(accumulatedTimeRef.current.toFixed(4));
-      setElapsedTime(nextTime);
+        return nextTime;
+      });
+    }, 100);
 
-      const currentTrialPlanets: PlanetConfig[] = initialPlanets.map((p) => ({
-        name: p.name,
-        orbit: p.orbit,
-        size: p.size,
-        color: p.color,
-        speed: p.speed,
-        angle: 0,
-      }));
-
-      const triplets = findAlignedTriplets(currentTrialPlanets, nextTime, 1.5);
-
-      if (triplets && triplets.length > 0) {
-        const firstMatch = triplets[0];
-        
-        setAlignmentNotification({
-          angle: firstMatch.angle,
-          planets: firstMatch.planets.map((p: any) => ({
-            name: p.name,
-            speed: p.speed,
-          })),
-          multiplier: boosting,
-        });
-
-        setIsFrozen(true);
-        setBoosting(0);
-      } else {
-        animationFrameId = requestAnimationFrame(tick);
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [boosting, isFrozen, initialPlanets]);
+    return () => clearInterval(intervalId);
+  }, [boost, initialPlanets]);
 
   const handleSunClick = () => {
-    if (isFrozen || alignmentNotification) {
+    if (boost === 0 || alignmentNotification) {
       setAlignmentNotification(null);
-      setIsFrozen(false);
-      setBoosting(1);
-    } else if (boosting === 1) {
-      setBoosting(7);
+      setBoost(1);
+    } else if (boost === 1) {
+      setBoost(7);
     } else {
-      setBoosting(1);
+      setBoost(1);
     }
   };
 
@@ -142,25 +122,17 @@ export default function Home() {
               onClick={handleSunClick}
               className={styles.sunButton}
             >
-              {isFrozen || alignmentNotification ? "Resume" : "Boost"}
+              {boost === 0 || alignmentNotification ? "Resume" : "Boost"}
             </button>
 
-            {initialPlanets.map((planet) => {
-              const calculatedAngle = getPlanetAngle({
-                name: planet.name,
-                orbit: planet.orbit,
-                size: planet.size,
-                color: planet.color,
-                speed: planet.speed,
-              }, elapsedTime);
-
+            {movingPlanets.map((planet) => {
               const orbitStyle = {
                 width: `${planet.orbit * 2}px`, 
                 height: `${planet.orbit * 2}px`,
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                transform: `translate(-50%, -50%) rotate(${calculatedAngle}deg)`,
+                transform: `translate(-50%, -50%) rotate(${planet.angle}deg)`,
                 ["--planet-size" as string]: `${planet.size}px`,
                 ["--planet-color" as string]: planet.color,
               } as CSSProperties;
@@ -178,22 +150,14 @@ export default function Home() {
         <aside className={styles.sidebarSection}>
           <h2 className={styles.sidebarTitle}>System Telemetry</h2>
           <div className={styles.legend} aria-label="Planet data metrics">
-            {initialPlanets.map((planet) => {
-              const currentAngle = getPlanetAngle({
-                name: planet.name,
-                orbit: planet.orbit,
-                size: planet.size,
-                color: planet.color,
-                speed: planet.speed,
-              }, elapsedTime);
-
+            {movingPlanets.map((planet) => {
               return (
                 <div key={planet.name} className={styles.legendItem}>
                   <span className={styles.dot} style={{ backgroundColor: planet.color }} />
                   <div className={styles.itemData}>
                     <strong>{planet.name}</strong>
                     <div>Speed: {planet.speed.toFixed(1)}x</div>
-                    <div>Angle: {(currentAngle ?? 0).toFixed(1)}°</div>
+                    <div>Angle: {(planet.angle ?? 0).toFixed(1)}°</div>
                   </div>
                 </div>
               );

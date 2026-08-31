@@ -4,7 +4,7 @@ export type PlanetConfig = {
   size: number;
   color: string;
   speed: number;
-  angle?: number;
+  angle: number;
 };
 
 export type AlignmentMatch = {
@@ -47,7 +47,7 @@ function circularDifference(a: number, b: number): number {
 export function findAlignedTriplets(
   planets: PlanetConfig[],
   elapsedTime: number,
-  toleranceDegrees = 10,
+  toleranceDegrees = 5,
 ): AlignmentMatch[] {
   const matches: AlignmentMatch[] = [];
   const normalizedTolerance = Math.max(0, toleranceDegrees);

@@ -49,16 +49,11 @@ function circularDifference(a: number, b: number): number {
  */
 export function findAlignedTriplets(
   planets: PlanetConfig[],
-  elapsedTime: number,         
+  elapsedTime: number,
   toleranceDegrees = 1,
 ): AlignmentMatch[] {
   const matches: AlignmentMatch[] = [];
   const normalizedTolerance = Math.max(0, toleranceDegrees);
-
-  // Safeguard: Ignore the initial frozen state when time hasn't started moving yet
-  if (elapsedTime === 0) {
-    return [];
-  }
 
   for (let i = 0; i < planets.length; i++) {
     for (let j = i + 1; j < planets.length; j++) {
@@ -67,25 +62,24 @@ export function findAlignedTriplets(
         const p2 = planets[j];
         const p3 = planets[k];
 
-        // 1. Calculate each planet's actual unique angle for this timestamp
         const angle1 = getPlanetAngle(p1, elapsedTime);
         const angle2 = getPlanetAngle(p2, elapsedTime);
         const angle3 = getPlanetAngle(p3, elapsedTime);
 
-        const sameAngle =
-          circularDifference(angle1, angle2) <= normalizedTolerance &&
-          circularDifference(angle2, angle3) <= normalizedTolerance &&
-          circularDifference(angle1, angle3) <= normalizedTolerance;
+        // Check if the lines match by checking if diff is 0 OR 180 degrees
+        const diff12 = circularDifference(angle1, angle2);
+        const diff23 = circularDifference(angle2, angle3);
+        const diff13 = circularDifference(angle1, angle3);
 
-        if (sameAngle) {
-          // Calculate the average angle purely for reference reporting or logs
-          const avgAngle = (angle1 + angle2 + angle3) / 3;
-          
+        const aligned12 = diff12 <= normalizedTolerance || Math.abs(diff12 - 180) <= normalizedTolerance;
+        const aligned23 = diff23 <= normalizedTolerance || Math.abs(diff23 - 180) <= normalizedTolerance;
+        const aligned13 = diff13 <= normalizedTolerance || Math.abs(diff13 - 180) <= normalizedTolerance;
+
+        if (aligned12 && aligned23 && aligned13) {
+          // Use the first planet's angle as the baseline axis representation
           matches.push({
-            angle: avgAngle,
+            angle: angle1, 
             planets: [
-              // CRITICAL FIX: Retain their individual dynamic orbital angles
-              // instead of collapsing/overwriting them into the same exact value.
               { ...p1, angle: angle1, speed: Number(p1.speed) },
               { ...p2, angle: angle2, speed: Number(p2.speed) },
               { ...p3, angle: angle3, speed: Number(p3.speed) },
@@ -95,23 +89,5 @@ export function findAlignedTriplets(
       }
     }
   }
-
   return matches;
-}
-
-export function logAlignedTriplets(planets: PlanetConfig[], elapsedTime = 0): void {
-  const matches = findAlignedTriplets(planets, elapsedTime, 1);
-
-  matches.forEach((match) => {
-    const parts = match.planets
-      .map(
-        (planet) =>
-          `${planet.name}: angle=${planet.angle.toFixed(2)}°, speed=${planet.speed.toFixed(4)}`,
-      )
-      .join(" | ");
-
-    console.log(
-      `[SolarSystem] Three planets aligned at ${match.angle.toFixed(2)}°: ${parts}`,
-    );
-  });
 }

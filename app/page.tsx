@@ -24,7 +24,7 @@ export default function Home() {
   const lastTimeRef = useRef<number | null>(null);
   const accumulatedTimeRef = useRef<number>(0);
 
-  const initialPlanets = useMemo(() => [
+  const initialPlanets : PlanetConfig[] = useMemo(() => [
     { name: "Mercury", orbit: 45, speed: Math.random()*50, size: 4, color: "#d9d4c5" },
     { name: "Venus", orbit: 70, speed: Math.random()*50, size: 7, color: "#f4c56d" },
     { name: "Earth", orbit: 100, speed: Math.random()*50, size: 8, color: "#56a7ff" },
@@ -148,7 +148,7 @@ export default function Home() {
             {initialPlanets.map((planet) => {
               const calculatedAngle = getPlanetAngle({
                 name: planet.name,
-                orbitRadius: planet.orbit,
+                orbit: planet.orbit,
                 size: planet.size,
                 color: planet.color,
                 speed: planet.speed,
@@ -181,7 +181,7 @@ export default function Home() {
             {initialPlanets.map((planet) => {
               const currentAngle = getPlanetAngle({
                 name: planet.name,
-                orbitRadius: planet.orbit,
+                orbit: planet.orbit,
                 size: planet.size,
                 color: planet.color,
                 speed: planet.speed,

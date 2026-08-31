@@ -46,35 +46,48 @@ export default function Home() {
   }, [initialPlanets, boost, elapsedTime]);
 
   // 3. Engine loop combining clock steps and active alignment validation
-  useEffect(() => {
-    if (boost === 0) return; // Completely freeze loop if system is paused
+useEffect(() => {
+  if (boost === 0) return; // Completely freeze loop if system is paused
 
-    const intervalId = setInterval(() => {
-      setElapsedTime((prevTime) => {
-        const nextTime = prevTime + 0.1 * boost;
-        const triplets = findAlignedTriplets(movingPlanets, nextTime, 1.5);
-        if (triplets && triplets.length > 0) {
-          const firstMatch = Array.isArray(triplets) ? triplets[0] : triplets;
+  const intervalId = setInterval(() => {
+    // We update both states concurrently inside the single hook callback
+    setElapsedTime((prevTime) => {
+      const nextTime = prevTime + 0.01 * boost;
+      
+      // Compute math directly on stable base configurations
+      const triplets = findAlignedTriplets(initialPlanets, nextTime, 1.0);
+      
+      if (triplets && triplets.length > 0) {
+        // Find the absolute first match vector in the array sequence
+        const firstMatch = Array.isArray(triplets) ? triplets[0] : triplets;
 
-          setAlignmentNotification({
-            angle: firstMatch.angle,
-            planets: firstMatch.planets.map((p: any) => ({
-              name: p.name,
-              speed: p.speed,
-            })),
-            multiplier: boost,
-          });
+        // 1. Immediately kill the loop interval to prevent further ticks
+        clearInterval(intervalId);
 
-          setBoost(0); // Freeze engine
-        }
+        // 2. Freeze the boost gear synchronously
+        setBoost(0);
 
+        // 3. Post notification data for the UI panel overlay
+        setAlignmentNotification({
+          angle: firstMatch.angle,
+          planets: firstMatch.planets.map((p: any) => ({
+            name: p.name,
+            speed: p.speed,
+          })),
+          multiplier: boost,
+        });
+
+        // CRITICAL FIX: Lock down this exact time state. 
+        // This forces the UI movingPlanets memo to render the exact matching frame coordinates.
         return nextTime;
-      });
-    }, 100);
+      }
 
-    return () => clearInterval(intervalId);
-  }, [boost, initialPlanets]);
+      return nextTime;
+    });
+  }, 10);
 
+  return () => clearInterval(intervalId);
+}, [boost, initialPlanets]);
   const handleSunClick = () => {
     if (boost === 0 || alignmentNotification) {
       setAlignmentNotification(null);

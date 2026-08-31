@@ -11,143 +11,48 @@ import {
 } from "@/lib/solarSystem";
 import styles from "./page.module.css";
 import logo from './logo.png'
-const initialPlanets = [
-  { name: "Mercury", orbit: 88, baseDuration: 6, size: 7, color: "#d9d4c5" },
-  { name: "Venus", orbit: 130, baseDuration: 9, size: 12, color: "#f4c56d" },
-  { name: "Earth", orbit: 180, baseDuration: 12, size: 14, color: "#56a7ff" },
-  { name: "Mars", orbit: 240, baseDuration: 15, size: 11, color: "#ff7a59" },
-  { name: "Jupiter", orbit: 310, baseDuration: 20, size: 22, color: "#d08b5a" },
-  { name: "Saturn", orbit: 380, baseDuration: 26, size: 19, color: "#e8d39c" },
-  { name: "Uranus", orbit: 450, baseDuration: 32, size: 16, color: "#89d9f5" },
-  { name: "Neptune", orbit: 520, baseDuration: 38, size: 15, color: "#5d7dff" },
-].map((planet) => ({
-  ...planet,
-  speed: calculatePlanetSpeed(planet.orbit),
-  range: `${Math.round(planet.orbit * 0.8)}–${Math.round(planet.orbit * 1.2)} px`,
-}));
 
-logAlignedTriplets(
-  initialPlanets.map((planet) => ({
-    name: planet.name,
-    orbitRadius: planet.orbit,
-    size: planet.size,
-    color: planet.color,
-    speed: planet.speed,
-  })),
-);
 
-function getAlignmentTrial(multiplier: number) {
-  return initialPlanets.map((planet) => ({
-    name: planet.name,
-    orbitRadius: planet.orbit,
-    size: planet.size,
-    color: planet.color,
-    speed: Number((planet.speed * multiplier).toFixed(4)),
-  }));
-}
 
 export default function Home() {
-  const [speedMultiplier, setSpeedMultiplier] = useState(1);
-  const [statusMessage, setStatusMessage] = useState(
-    "Orbit speed is stable. Three-planet alignment is being monitored.",
-  );
   const [alignmentNotification, setAlignmentNotification] = useState<{
     angle: number;
     planets: Array<{ name: string; speed: number }>;
     multiplier: number;
   } | null>(null);
   const [isFrozen, setIsFrozen] = useState(false);
-  const [isBoosting, setIsBoosting] = useState(false);
+  const [Boosting, setBoosting] = useState(1);
   const [elapsedTime, setElapsedTime] = useState(0);
-
-  const animatedPlanets = useMemo(
-    () =>
-      initialPlanets.map((planet) => {
-        const alignmentMatch =
-          isFrozen &&
-          alignmentNotification &&
-          alignmentNotification.planets.some((entry) => entry.name === planet.name);
-
-        const adjustedSpeed = isFrozen
-          ? Number((planet.speed * (alignmentNotification?.multiplier || 1)).toFixed(4))
-          : Number((planet.speed * speedMultiplier).toFixed(4));
-
-        const currentAngle = getPlanetAngle({
-          name: planet.name,
-          orbitRadius: planet.orbit,
-          size: planet.size,
-          color: planet.color,
-          speed: adjustedSpeed,
-        });
-
-        const orbitShift = alignmentMatch
-          ? normalizeAngle(alignmentNotification.angle - currentAngle)
-          : 0;
-
-        return {
-          ...planet,
-          adjustedSpeed,
-          orbitShift,
-          duration: `${Math.max(1.2, Number((planet.baseDuration / (isFrozen ? alignmentNotification?.multiplier || 1 : speedMultiplier)).toFixed(2)))}s`,
-        };
-      }),
-    [speedMultiplier, isFrozen, alignmentNotification],
-  );
-
+  const initialPlanets = [
+   { name: "Mercury", orbit: 88, speed: 6 , size: 7, color: "#d9d4c5" },
+   { name: "Venus", orbit: 130, speed: 9, size: 12, color: "#f4c56d" },
+   { name: "Earth", orbit: 180, speed: 12, size: 14, color: "#56a7ff" },
+   { name: "Mars", orbit: 240, speed: 15, size: 11, color: "#ff7a59" },
+   { name: "Jupiter", orbit: 310, speed: 20, size: 22, color: "#d08b5a" },
+   { name: "Saturn", orbit: 380, speed: 26, size: 19, color: "#e8d39c" },
+   { name: "Uranus", orbit: 450, speed: 32, size: 16, color: "#89d9f5" },
+   { name: "Neptune", orbit: 520, speed: 38, size: 15, color: "#5d7dff" },
+  ].map((planet) => ({
+  ...planet,
+  speed: planet.speed * Boosting,
+}));
   useEffect(() => {
-    if (!isBoosting) {
-      setElapsedTime((previous) => Number((previous + 0.1).toFixed(2)));
-    }
-
-    const intervalId = setInterval(() => {
-
-      setSpeedMultiplier(() => {
-        var next = 3;
-       setElapsedTime((previous) => Number((previous + 0.1* next).toFixed(2)));
-       const triplets = findAlignedTriplets(getAlignmentTrial(next), 1, 0);
-        if (triplets.length > 0) {
-          next = 1;
-          const match = triplets[0];
-          setAlignmentNotification({
-            angle: match.angle,
-            planets: match.planets.map((planet) => ({
-              name: planet.name,
-              speed: planet.speed*next,
-            })),
-            multiplier: next,
-          });
-          setStatusMessage(`Alignment found at ${next.toFixed(2)}x speed!`);
-          setIsBoosting(false);
-          setIsFrozen(true);
-          return next;
-        }
-
-        return next;
+    setElapsedTime((previous) => Number((previous + 0.1*Boosting).toFixed(2)));
       });
-    }, 100);
-
-    return () => clearInterval(intervalId);
-  }, [isBoosting]);
-
   const handleSunClick = () => {
-    if (!isBoosting)
-      {
-        setIsBoosting(true);
-      }
-      else
-      {
-         setIsBoosting(false);
-      }
-    if (isFrozen || alignmentNotification) {
+   if (isFrozen || alignmentNotification) {
       setAlignmentNotification(null);
       setIsFrozen(false);
-      setIsBoosting(false);
-      setStatusMessage(
-        `Resuming orbit from ${speedMultiplier.toFixed(2)}x. Planet timer continues from the last alignment frame.`,
-      );
-      return;
+      setBoosting(1);
     }
-    setStatusMessage("Speed boosting until a three-planet alignment is reached.");
+    else if (Boosting == 1 &&!isFrozen)
+      {
+        setBoosting(7);
+      }
+      else 
+      {
+         setBoosting(1);
+      }
   };
 
   return (
@@ -188,15 +93,15 @@ export default function Home() {
       >
         {isFrozen || alignmentNotification ? "Resume" : "Boost"}
       </button>
-        {animatedPlanets.map((planet) => {
+        {initialPlanets.map((planet) => {
           const orbitStyle = {
             width: `${planet.orbit}px`,
             height: `${planet.orbit}px`,
-            animationDuration: planet.duration,
+            animationDuration: planet.speed > 0 ? `${Math.max(1.2, Number((360 / planet.speed).toFixed(2)))}s` : "0s",
             animationPlayState: isFrozen ? "paused" : "running",
             ["--planet-size" as string]: `${planet.size}px`,
             ["--planet-color" as string]: planet.color,
-            ["--orbit-shift" as string]: `${planet.orbitShift}deg`,
+            ["--orbit-shift" as string]: `${planet.orbit}deg`,
           } as CSSProperties;
 
           return (
@@ -211,24 +116,33 @@ export default function Home() {
           );
         })}
 
-        <div className={styles.comet} aria-hidden="true" />
       </div>
 
       <section className={styles.legend} aria-label="Planet speeds and ranges">
-        {animatedPlanets.map((planet) => (
-          <div key={planet.name} className={styles.legendItem}>
-            <span
-              className={styles.dot}
-              style={{ backgroundColor: planet.color }}
-              aria-hidden="true"
-            />
-            <div>
-              <strong>{planet.name}</strong>
-              <div>Speed: {planet.adjustedSpeed.toFixed(4)}x</div>
-              <div>Range: {planet.range}</div>
+        {initialPlanets.map((planet) => {
+          const currentAngle = getPlanetAngle({
+            name: planet.name,
+            orbitRadius: planet.orbit,
+            size: planet.size,
+            color: planet.color,
+            speed: planet.speed,
+          }, elapsedTime);
+
+          return (
+           <div key={planet.name} className={styles.legendItem}>
+             <span
+               className={styles.dot}
+                style={{ backgroundColor: planet.color }}
+               aria-hidden="true"
+             />
+              <div>
+                <strong>{planet.name}</strong>
+                <div>Speed: {planet.speed.toFixed(4)}x</div>
+               <div>Angle: {(currentAngle ?? 0).toFixed(2)}°</div>
+             </div>
             </div>
-          </div>
-        ))}
+          );
+       })}
       </section>
     </main>
   );

@@ -1,3 +1,5 @@
+// lib/solarSystem.ts
+
 export type PlanetConfig = {
   name: string;
   orbitRadius: number;
@@ -12,26 +14,47 @@ export type AlignmentMatch = {
   planets: Array<PlanetConfig & { angle: number; speed: number }>;
 };
 
+/**
+ * Calculates a baseline relational speed based on orbit distance metrics.
+ */
 export function calculatePlanetSpeed(orbitRadius: number): number {
   return Number(((orbitRadius / 18) / 1000).toFixed(4));
 }
 
+/**
+ * Normalizes any angle to stay strictly within a valid 0 to 360 degree boundary map.
+ */
 export function normalizeAngle(angle: number): number {
   const normalized = angle % 360;
   return normalized < 0 ? normalized + 360 : normalized;
 }
 
-export function getPlanetAngle(planet: PlanetConfig): number {
-  const orbitFactor = Number(planet.orbitRadius) * Number(planet.speed);
+/**
+ * Computes the exact real-time angular coordinate mapping for a planet.
+ */
+export function getPlanetAngle(planet: PlanetConfig, elapsedTime: number): number {
+  const radius = Number(planet.orbitRadius || 0);
+  const baseSpeed = Number(planet.speed || 0);
+  
+  // Custom velocity multiplier mapping to scale visual simulation playback speeds smoothly
+  const scaleFactor = 0.05; 
+  
   const startAngle = Number(planet.startAngle ?? 0);
-  return normalizeAngle(startAngle + (orbitFactor * 360) % 360)/10;
+  const dynamicMovement = baseSpeed * elapsedTime * scaleFactor * 360;
+  
+  return normalizeAngle(startAngle + dynamicMovement);
 }
-
+/**
+ * Computes the shortest circular angular difference between two tracking coordinates.
+ */
 function circularDifference(a: number, b: number): number {
   const raw = Math.abs(a - b);
   return Math.min(raw, 360 - raw);
 }
 
+/**
+ * Iterates through dynamic scaling factors sequentially to discover alignment matches.
+ */
 export function findAlignmentSpeedMultiplier(
   planets: PlanetConfig[],
   startMultiplier: number = 1,
@@ -58,6 +81,9 @@ export function findAlignmentSpeedMultiplier(
   return null;
 }
 
+/**
+ * Searches for all unique three-body combinations satisfying maximum proximity limits.
+ */
 export function findAlignedTriplets(
   planets: PlanetConfig[],
   toleranceDegrees = 1,
@@ -100,6 +126,9 @@ export function findAlignedTriplets(
   return matches;
 }
 
+/**
+ * Diagnostic stream logger to print tracking combinations to the web development console.
+ */
 export function logAlignedTriplets(planets: PlanetConfig[]): void {
   const matches = findAlignedTriplets(planets, 1, 0);
 

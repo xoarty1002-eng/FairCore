@@ -290,21 +290,16 @@
 
 .legend {
   display: grid;
-  /* Creates exactly 2 equal columns side-by-side */
   grid-template-columns: repeat(2, 1fr); 
   gap: 0.75rem;
-  width: 360px;                /* Wider to fit 2 side-by-side columns */
+  width: 360px;               
   z-index: 2;
-
-  /* Positioning to the right side of the page */
-  position: fixed;             /* Keeps it in place while scrolling */
-  right: 1.5rem;               /* Distance from the right edge */
-  top: 50%;                    /* Centers it vertically */
-  transform: translateY(-50%); /* Adjusts alignment to perfectly center it */
-  
-  /* Fallback for long lists */
+  position: fixed;            
+  right: 1.5rem;               
+  top: 50%;                    
+  transform: translateY(-50%); 
   max-height: 85vh;
-  overflow-y: auto;            /* Adds a scrollbar if there are too many items */
+  overflow-y: auto;            
 }
 
 .legendItem {

@@ -25,14 +25,14 @@ export default function Home() {
   const accumulatedTimeRef = useRef<number>(0);
 
   const initialPlanets = useMemo(() => [
-    { name: "Mercury", orbit: 45, speed: 38, size: 4, color: "#d9d4c5" },
-    { name: "Venus", orbit: 70, speed: 32, size: 7, color: "#f4c56d" },
-    { name: "Earth", orbit: 100, speed: 26, size: 8, color: "#56a7ff" },
-    { name: "Mars", orbit: 135, speed: 20, size: 6, color: "#ff7a59" },
-    { name: "Jupiter", orbit: 180, speed: 15, size: 14, color: "#d08b5a" },
-    { name: "Saturn", orbit: 225, speed: 12, size: 12, color: "#e8d39c" },
-    { name: "Uranus", orbit: 265, speed: 9, size: 10, color: "#89d9f5" },
-    { name: "Neptune", orbit: 305, speed: 6, size: 9, color: "#5d7dff" },
+    { name: "Mercury", orbit: 45, speed: Math.random()*50, size: 4, color: "#d9d4c5" },
+    { name: "Venus", orbit: 70, speed: Math.random()*50, size: 7, color: "#f4c56d" },
+    { name: "Earth", orbit: 100, speed: Math.random()*50, size: 8, color: "#56a7ff" },
+    { name: "Mars", orbit: 135, speed: Math.random()*50, size: 6, color: "#ff7a59" },
+    { name: "Jupiter", orbit: 180, speed: Math.random()*50, size: 14, color: "#d08b5a" },
+    { name: "Saturn", orbit: 225, speed: Math.random()*50, size: 12, color: "#e8d39c" },
+    { name: "Uranus", orbit: 265, speed: Math.random()*50, size: 10, color: "#89d9f5" },
+    { name: "Neptune", orbit: 305, speed: Math.random()*50, size: 9, color: "#5d7dff" },
   ].map((planet) => ({
     ...planet,
     speed: planet.speed * boosting,

@@ -50,39 +50,45 @@ useEffect(() => {
   if (boost === 0) return; // Completely freeze loop if system is paused
 
   const intervalId = setInterval(() => {
-    // We update both states concurrently inside the single hook callback
     setElapsedTime((prevTime) => {
-      const nextTime = prevTime + 0.01 * boost;
-      
-      // Compute math directly on stable base configurations
-      const triplets = findAlignedTriplets(initialPlanets, nextTime, 1.0);
-      
-      if (triplets && triplets.length > 0) {
-        // Find the absolute first match vector in the array sequence
-        const firstMatch = Array.isArray(triplets) ? triplets[0] : triplets;
+      // 1. Determine sub-steps dynamically based on our boost configuration
+      // If boost is 7, we scan 7 distinct micro-increments inside this single interval execution
+      const substeps = boost > 1 ? Math.round(boost) : 1;
+      const stepIncrement = 0.01; // Base time step constant
 
-        // 1. Immediately kill the loop interval to prevent further ticks
-        clearInterval(intervalId);
+      let currentCheckTime = prevTime;
 
-        // 2. Freeze the boost gear synchronously
-        setBoost(0);
+      for (let step = 0; step < substeps; step++) {
+        // Increment our target evaluation clock by a micro-slice fraction
+        currentCheckTime += stepIncrement;
 
-        // 3. Post notification data for the UI panel overlay
-        setAlignmentNotification({
-          angle: firstMatch.angle,
-          planets: firstMatch.planets.map((p: any) => ({
-            name: p.name,
-            speed: p.speed,
-          })),
-          multiplier: boost,
-        });
+        // 2. Sample math configurations directly from constant base values
+        const triplets = findAlignedTriplets(initialPlanets, currentCheckTime, 1.0);
 
-        // CRITICAL FIX: Lock down this exact time state. 
-        // This forces the UI movingPlanets memo to render the exact matching frame coordinates.
-        return nextTime;
+        if (triplets && triplets.length > 0) {
+          const firstMatch = Array.isArray(triplets) ? triplets[0] : triplets;
+
+          // CRITICAL STEP: Kill the running clock execution sequence immediately
+          clearInterval(intervalId);
+          setBoost(0);
+
+          setAlignmentNotification({
+            angle: firstMatch.angle,
+            planets: firstMatch.planets.map((p: any) => ({
+              name: p.name,
+              speed: p.speed,
+            })),
+            multiplier: boost,
+          });
+
+          // FREEZE DIRECTLY ON THE MATCH COORDINATES: 
+          // Stops the clock right on the sub-step time where the alignment was caught
+          return currentCheckTime;
+        }
       }
 
-      return nextTime;
+      // If no alignments were found across the sub-steps, commit the full tick step forward
+      return prevTime + 0.01 * boost;
     });
   }, 10);
 
